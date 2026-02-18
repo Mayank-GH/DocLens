@@ -1,0 +1,19 @@
+rag_pdf_platform/
+├── docker-compose.yml          # Infrastructure orchestration
+├── Makefile                    # Convenience commands
+├── setup.sh                    # Automated setup
+├── .env.example                # Environment template
+├── init.sql                    # Database initialization
+├── README.md                   # Full documentation
+├── backend/
+│   ├── app/
+│   │   ├── main.py            # FastAPI entry point
+│   │   ├── config.py          # Settings
+│   │   ├── models/database.py # SQLAlchemy models
+│   │   └── celery_worker.py   # Background tasks
+│   ├── requirements.txt       # Python dependencies
+│   └── Dockerfile
+└── frontend/
+    ├── src/App.tsx            # React main app
+    ├── package.json           # Node dependencies
+    └── Dockerfile
