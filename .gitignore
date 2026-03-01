@@ -1,3 +1,4 @@
 .venv
 prod-structure.txt
 rag_pdf_platform\backend\app\content
+rag_pdf_platform\backend\app\.env
