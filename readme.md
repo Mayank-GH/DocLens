@@ -123,5 +123,5 @@ Then interact with the system by asking questions about the uploaded documents.
     Support for images and tables
     Cloud deployment
 
-👨‍💻 Authors
+👨‍💻 Author
 Mayank
