@@ -1,0 +1,174 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  body {
+    background: #f3f1f8;
+    color: #16141d;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #e8e3ef; }
+  ::-webkit-scrollbar-thumb { background: #c4bdd4; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #a89fc4; }
+
+  ::selection { background: rgba(92, 82, 212, 0.18); color: #16141d; }
+}
+
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(92, 82, 212, 0.12);
+  }
+
+  .glow-border {
+    border: 1px solid rgba(92, 82, 212, 0.35);
+    box-shadow: 0 0 0 1px rgba(92, 82, 212, 0.06), 0 12px 40px rgba(92, 82, 212, 0.08);
+  }
+
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-dim text-white font-display font-medium px-5 py-2.5 rounded-lg transition-all duration-200;
+    box-shadow: 0 4px 14px rgba(92, 82, 212, 0.35);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(92, 82, 212, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    @apply text-muted hover:text-ink px-4 py-2 rounded-lg transition-all duration-200 hover:bg-subtle;
+  }
+
+  .card {
+    @apply bg-surface border border-border rounded-xl p-5 shadow-sm;
+  }
+
+  .input-field {
+    @apply bg-surface border border-border rounded-lg px-4 py-2.5 text-sm text-ink placeholder:text-muted/70 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-colors w-full;
+  }
+
+  .status-badge {
+    @apply text-xs font-mono px-2 py-0.5 rounded-full;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-body text-muted hover:text-ink hover:bg-subtle transition-all duration-200 cursor-pointer;
+  }
+
+  .nav-item.active {
+    @apply text-ink bg-subtle font-medium;
+    border-left: 3px solid #5c52d4;
+  }
+
+  .citation-card {
+    @apply bg-panel border border-border rounded-lg p-3 text-xs font-mono text-muted;
+  }
+
+  .citation-card:hover {
+    @apply border-accent text-ink;
+    background: rgba(92, 82, 212, 0.06);
+  }
+
+  .markdown-content {
+    @apply text-sm text-ink leading-relaxed;
+  }
+
+  .markdown-content p {
+    margin-bottom: 0.65em;
+  }
+
+  .markdown-content ul,
+  .markdown-content ol {
+    margin-bottom: 0.65em;
+    padding-left: 1.25rem;
+  }
+
+  .markdown-content a {
+    color: #5c52d4;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .markdown-content code {
+    font-size: 0.9em;
+    background: #ebe6f4;
+    padding: 0.1em 0.35em;
+    border-radius: 0.25rem;
+  }
+}
+
+/* Grid background — soft for light mode */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(92, 82, 212, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(92, 82, 212, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.4) 2px,
+    rgba(255, 255, 255, 0.4) 4px
+  );
+  pointer-events: none;
+}
+
+.typing-cursor::after {
+  content: '▋';
+  animation: blink 1s step-end infinite;
+  color: #5c52d4;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.progress-glow {
+  box-shadow: 0 0 12px rgba(92, 82, 212, 0.45);
+}
+
+.chat-user {
+  background: linear-gradient(135deg, rgba(92, 82, 212, 0.12), rgba(92, 82, 212, 0.06));
+  border: 1px solid rgba(92, 82, 212, 0.22);
+}
+
+.chat-ai {
+  background: #ffffff;
+  border: 1px solid #e2dce8;
+  box-shadow: 0 1px 3px rgba(22, 20, 29, 0.04);
+}
+
+.doc-card {
+  transition: all 0.25s ease;
+}
+
+.doc-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(92, 82, 212, 0.35);
+  box-shadow: 0 10px 36px rgba(92, 82, 212, 0.12);
+}
+
+.diff-unique-a { background: rgba(225, 29, 72, 0.06); border-left: 2px solid #e11d48; }
+.diff-unique-b { background: rgba(13, 158, 199, 0.08); border-left: 2px solid #0d9ec7; }
+.diff-contradiction { background: rgba(217, 119, 6, 0.08); border-left: 2px solid #d97706; }
+
+.gradient-text {
+  background: linear-gradient(135deg, #5c52d4, #0d9ec7, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

@@ -2,3 +2,5 @@
 .env
 prod-structure.txt
 rag_pdf_platform\backend\app\content
+rag_pdf_platform/backend/data/
+rag_pdf_platform/frontend/node_modules/
