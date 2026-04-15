@@ -105,8 +105,13 @@ Install dependencies:
 
 Run the application:
 
-    python app.py
+    Backend:
+        cd d:\github\RAG\rag_pdf_platform\backend
+        d:\github\RAG\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8765
 
+    Frontend:
+       cd d:\github\RAG\rag_pdf_platform\frontend
+       npm run dev 
 Then interact with the system by asking questions about the uploaded documents.
 
 📊 Example Use Cases
