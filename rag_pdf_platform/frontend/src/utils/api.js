@@ -1,3 +1,4 @@
+// Typed API helpers used by UI pages/components.
 import axios from "axios";
 
 const api = axios.create({ baseURL: "/api" });
@@ -5,6 +6,7 @@ const api = axios.create({ baseURL: "/api" });
 export const getApiKey = () => localStorage.getItem("groq_api_key") || "";
 
 export const uploadDocument = (file, onProgress) => {
+  // Uploads one PDF and optionally reports upload percentage.
   const form = new FormData();
   form.append("file", file);
   return api.post("/documents/upload", form, {

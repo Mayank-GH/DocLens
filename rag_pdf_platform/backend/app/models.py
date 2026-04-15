@@ -1,3 +1,5 @@
+"""SQLAlchemy ORM models persisted in SQLite."""
+
 from datetime import datetime
 
 from sqlalchemy import DateTime, Integer, String, Text
@@ -7,6 +9,8 @@ from app.database import Base
 
 
 class Document(Base):
+    """Metadata record for an uploaded PDF and its indexing state."""
+
     __tablename__ = "documents"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)

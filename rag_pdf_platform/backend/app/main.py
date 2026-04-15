@@ -1,3 +1,5 @@
+"""FastAPI entrypoint for DocLensAI backend."""
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,6 +24,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup() -> None:
+    """Initialize persistent storage when the API boots."""
+
     init_db()
 
 
@@ -32,4 +36,6 @@ app.include_router(compare.router, prefix="/api/compare", tags=["compare"])
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
+    """Lightweight health endpoint used by UI/startup checks."""
+
     return {"status": "ok"}

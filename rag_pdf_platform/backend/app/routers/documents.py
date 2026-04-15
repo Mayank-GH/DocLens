@@ -1,10 +1,14 @@
+"""Document upload/list/get/delete API routes."""
+
+import logging
+import time
 import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from app.config import UPLOADS_DIR
+from app.config import UPLOADS_DIR, settings
 from app.database import get_db
 from app.models import Document
 from app.schemas import DocumentListResponse, DocumentOut, UploadResponse
@@ -13,9 +17,12 @@ from app.services.ingest import ingest_pdf_file
 
 router = APIRouter()
 MAX_BYTES = 50 * 1024 * 1024
+logger = logging.getLogger(__name__)
 
 
 def _run_ingest(doc_id: str) -> None:
+    """Background task: fetch row by id and run ingestion pipeline."""
+
     from app.database import SessionLocal
 
     db = SessionLocal()
@@ -27,12 +34,56 @@ def _run_ingest(doc_id: str) -> None:
         db.close()
 
 
+def _cleanup_document_assets(doc_id: str, file_path: str) -> None:
+    """Background cleanup: remove vector rows and on-disk PDF file."""
+
+    for attempt in range(1, settings.cleanup_retry_attempts + 1):
+        try:
+            chroma_store.delete_doc_chunks(doc_id)
+            break
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "Vector cleanup failed for doc_id=%s (attempt %s/%s): %s",
+                doc_id,
+                attempt,
+                settings.cleanup_retry_attempts,
+                exc,
+            )
+            if attempt < settings.cleanup_retry_attempts:
+                time.sleep(settings.cleanup_retry_delay_seconds)
+            else:
+                logger.error("Giving up vector cleanup for doc_id=%s", doc_id)
+
+    path = Path(file_path)
+    if not path.exists():
+        return
+    for attempt in range(1, settings.cleanup_retry_attempts + 1):
+        try:
+            path.unlink(missing_ok=True)
+            break
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "File cleanup failed for doc_id=%s path=%s (attempt %s/%s): %s",
+                doc_id,
+                file_path,
+                attempt,
+                settings.cleanup_retry_attempts,
+                exc,
+            )
+            if attempt < settings.cleanup_retry_attempts:
+                time.sleep(settings.cleanup_retry_delay_seconds)
+            else:
+                logger.error("Giving up file cleanup for doc_id=%s path=%s", doc_id, file_path)
+
+
 @router.post("/upload", response_model=UploadResponse)
 async def upload_document(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
+    """Upload a PDF, create DB row, and enqueue background ingestion."""
+
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
     doc_id = str(uuid.uuid4())
@@ -67,12 +118,16 @@ async def upload_document(
 
 @router.get("/", response_model=DocumentListResponse)
 def list_documents(db: Session = Depends(get_db)):
+    """Return all documents ordered by newest first."""
+
     rows = db.query(Document).order_by(Document.created_at.desc()).all()
     return DocumentListResponse(documents=[DocumentOut.from_doc(r) for r in rows])
 
 
 @router.get("/{doc_id}", response_model=DocumentOut)
 def get_document(doc_id: str, db: Session = Depends(get_db)):
+    """Return metadata for a single document by id."""
+
     row = db.get(Document, doc_id)
     if not row:
         raise HTTPException(status_code=404, detail="Document not found.")
@@ -80,17 +135,19 @@ def get_document(doc_id: str, db: Session = Depends(get_db)):
 
 
 @router.delete("/{doc_id}", status_code=204)
-def delete_document(doc_id: str, db: Session = Depends(get_db)):
+def delete_document(
+    doc_id: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    """Delete a document's DB row, file, and vector-store chunks."""
+
     row = db.get(Document, doc_id)
     if not row:
         raise HTTPException(status_code=404, detail="Document not found.")
-    try:
-        chroma_store.delete_doc_chunks(doc_id)
-    except Exception:
-        pass
-    path = Path(row.file_path)
-    if path.exists():
-        path.unlink(missing_ok=True)
+    file_path = row.file_path
     db.delete(row)
     db.commit()
+    # Heavy cleanup is deferred so API returns quickly for better UX.
+    background_tasks.add_task(_cleanup_document_assets, doc_id, file_path)
     return None

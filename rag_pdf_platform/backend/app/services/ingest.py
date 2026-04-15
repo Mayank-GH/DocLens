@@ -1,3 +1,5 @@
+"""Background ingestion pipeline for uploaded PDFs."""
+
 from pathlib import Path
 
 from sqlalchemy.orm import Session
@@ -9,6 +11,8 @@ from app.services.pdf_extract import extract_pages_text
 
 
 def ingest_pdf_file(db: Session, doc: Document) -> None:
+    """Extract, chunk, and index a PDF, then update document status."""
+
     path = Path(doc.file_path)
     try:
         pages = extract_pages_text(path)

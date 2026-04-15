@@ -1,8 +1,10 @@
+// Expandable citation list shown under assistant answers.
 import { BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import clsx from "clsx";
 
 export default function CitationPanel({ citations }) {
+  // Keeps track of which citation row is expanded.
   const [expanded, setExpanded] = useState(null);
 
   if (!citations || citations.length === 0) return null;

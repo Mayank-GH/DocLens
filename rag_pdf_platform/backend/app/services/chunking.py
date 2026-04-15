@@ -1,7 +1,14 @@
+"""Chunking utilities used during PDF ingestion."""
+
 from app.config import settings
 
 
 def chunk_page_text(page_num: int, text: str) -> list[tuple[str, int]]:
+    """Split one page into overlapping character windows.
+
+    Returns tuples of (chunk_text, page_number).
+    """
+
     text = text.strip()
     if not text:
         return []

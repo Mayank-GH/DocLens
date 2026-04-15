@@ -1,3 +1,4 @@
+// Compare page: choose two docs, generate analysis, and ask follow-up questions.
 import { useEffect, useState } from "react";
 import { GitCompare, Loader, Send, AlertTriangle, Minus, Plus, BookOpen, Lightbulb } from "lucide-react";
 import { listDocuments, analyzeDocuments, compareQuery } from "../utils/api";
@@ -29,6 +30,7 @@ export default function Compare() {
   };
 
   const handleAnalyze = async () => {
+    // Request structured comparison output for the selected pair.
     if (!docA || !docB) return;
     setAnalyzing(true);
     setAnalysis(null);
@@ -45,6 +47,7 @@ export default function Compare() {
   };
 
   const handleQuery = async () => {
+    // Ask a free-form question across both selected documents.
     if (!query.trim() || !docA || !docB) return;
     setQuerying(true);
     try {

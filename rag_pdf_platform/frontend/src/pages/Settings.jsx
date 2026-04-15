@@ -1,3 +1,4 @@
+// Settings page for storing local Groq API key used in requests.
 import { useState, useEffect } from "react";
 import { Settings as SettingsIcon, Key, Save, CheckCircle, Eye, EyeOff, ExternalLink } from "lucide-react";
 
@@ -11,6 +12,7 @@ export default function Settings() {
   }, []);
 
   const handleSave = () => {
+    // Persist API key in browser localStorage.
     localStorage.setItem("groq_api_key", apiKey.trim());
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);

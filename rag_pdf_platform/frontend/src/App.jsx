@@ -1,3 +1,4 @@
+// Top-level route map for the frontend application.
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -7,6 +8,7 @@ import Compare from "./pages/Compare";
 import Settings from "./pages/Settings";
 
 export default function App() {
+  // All pages render inside the common Layout sidebar shell.
   return (
     <Layout>
       <Routes>

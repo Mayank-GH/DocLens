@@ -1,3 +1,4 @@
+// Library page: list, refresh, upload, and delete documents.
 import { useEffect, useState } from "react";
 import { FolderOpen, RefreshCw, Plus } from "lucide-react";
 import { listDocuments, deleteDocument } from "../utils/api";
@@ -8,7 +9,9 @@ export default function Library() {
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
+  const [deletingIds, setDeletingIds] = useState(new Set());
   const fetchDocs = async () => {
+    // Pull latest document list from backend.
     try {
       setLoading(true);
       const { data } = await listDocuments();
@@ -27,8 +30,24 @@ export default function Library() {
   }, []);
 
   const handleDelete = async (id) => {
-    await deleteDocument(id);
-    fetchDocs();
+    // Optimistic UI: remove card instantly while backend cleanup continues.
+    setDeletingIds((prev) => new Set(prev).add(id));
+    const previous = docs;
+    setDocs((prev) => prev.filter((d) => d.id !== id));
+    try {
+      await deleteDocument(id);
+    } catch (e) {
+      console.error(e);
+      // Revert optimistic update if delete request fails.
+      setDocs(previous);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      fetchDocs();
+    }
   };
 
   return (
@@ -80,7 +99,7 @@ export default function Library() {
             <DocCard
               key={doc.id}
               doc={doc}
-              onDelete={handleDelete}
+              onDelete={deletingIds.has(doc.id) ? undefined : handleDelete}
             />
           ))}
         </div>

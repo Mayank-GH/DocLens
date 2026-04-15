@@ -1,4 +1,5 @@
-import { NavLink, useLocation } from "react-router-dom";
+// Global app shell: sidebar navigation + main content container.
+import { NavLink } from "react-router-dom";
 import { Brain, FolderOpen, MessageSquare, GitCompare, Settings, Zap } from "lucide-react";
 import clsx from "clsx";
 
@@ -10,6 +11,7 @@ const navItems = [
 ];
 
 export default function Layout({ children }) {
+  // Renders a persistent sidebar while routed pages render in `children`.
   return (
     <div className="flex h-screen overflow-hidden bg-void">
       <div className="fixed inset-0 grid-bg opacity-40 pointer-events-none" />

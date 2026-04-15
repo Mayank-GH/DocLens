@@ -1,3 +1,5 @@
+"""Single-document chat API route."""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -11,6 +13,8 @@ router = APIRouter()
 
 @router.post("/", response_model=ChatResponse)
 def chat(req: ChatRequest, db: Session = Depends(get_db)):
+    """Validate request and return an LLM answer grounded in retrieved chunks."""
+
     if not (req.api_key or "").strip():
         raise HTTPException(status_code=400, detail="Groq API key is required. Add it in Settings.")
     row = db.get(Document, req.doc_id)
@@ -22,6 +26,12 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
             detail=f"Document is not ready (status: {row.status}).",
         )
     try:
-        return rag.answer_for_doc(req.api_key.strip(), req.doc_id, req.query, req.history)
+        return rag.answer_for_doc(
+            req.api_key.strip(),
+            req.doc_id,
+            req.query,
+            req.history,
+            page_count=row.page_count,
+        )
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=502, detail=f"LLM request failed: {e!s}") from e

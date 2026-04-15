@@ -1,3 +1,5 @@
+"""Chroma vector-store access layer for storing/querying document chunks."""
+
 from __future__ import annotations
 
 import threading
@@ -14,6 +16,8 @@ _collection = None
 
 
 def _get_collection():
+    """Return singleton Chroma collection, creating it on first access."""
+
     global _client, _collection
     with _lock:
         if _collection is not None:
@@ -35,6 +39,8 @@ def add_chunks(
     chunk_texts: list[str],
     pages: list[int],
 ) -> int:
+    """Insert chunk texts + metadata for one document into Chroma."""
+
     col = _get_collection()
     if not chunk_texts:
         return 0
@@ -47,11 +53,15 @@ def add_chunks(
 
 
 def delete_doc_chunks(doc_id: str) -> None:
+    """Delete all vector rows belonging to one document."""
+
     col = _get_collection()
     col.delete(where={"doc_id": doc_id})
 
 
 def query_doc(doc_id: str, query: str, k: int) -> list[dict[str, Any]]:
+    """Similarity-search one document and return normalized hit objects."""
+
     col = _get_collection()
     res = col.query(
         query_texts=[query],
@@ -82,6 +92,8 @@ def query_doc(doc_id: str, query: str, k: int) -> list[dict[str, Any]]:
 
 
 def query_two_docs(doc_id_a: str, doc_id_b: str, query: str, k_each: int) -> tuple[list[dict], list[dict]]:
+    """Run the same query against two docs and return each hit list."""
+
     a = query_doc(doc_id_a, query, k_each)
     b = query_doc(doc_id_b, query, k_each)
     return a, b

@@ -1,3 +1,4 @@
+// Drag-and-drop uploader with progress and success/error states.
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, CheckCircle, AlertCircle, Loader } from "lucide-react";
@@ -11,6 +12,7 @@ export default function Uploader({ onUploaded }) {
   const [error, setError] = useState("");
 
   const onDrop = useCallback(async (accepted) => {
+    // Upload selected PDF and surface progress/errors in UI.
     const file = accepted[0];
     if (!file) return;
 

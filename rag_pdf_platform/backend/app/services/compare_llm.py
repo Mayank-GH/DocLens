@@ -1,3 +1,5 @@
+"""LLM orchestration helpers for document-vs-document comparison."""
+
 import json
 import re
 from typing import Any
@@ -13,6 +15,8 @@ from app.services import chroma_store, groq_client
 
 
 def _retrieve_both(doc_id_a: str, doc_id_b: str, query: str, k: int = 4) -> tuple[str, str]:
+    """Retrieve top-k context snippets independently for document A and B."""
+
     a_hits, b_hits = chroma_store.query_two_docs(doc_id_a, doc_id_b, query, k)
     a_ctx = "\n\n".join(f"[A p{h['page']}]\n{h['text']}" for h in a_hits) or "(No passages.)"
     b_ctx = "\n\n".join(f"[B p{h['page']}]\n{h['text']}" for h in b_hits) or "(No passages.)"
@@ -20,6 +24,8 @@ def _retrieve_both(doc_id_a: str, doc_id_b: str, query: str, k: int = 4) -> tupl
 
 
 def _parse_analysis_json(raw: str) -> AnalysisBlock:
+    """Parse model JSON output into typed AnalysisBlock with safe fallbacks."""
+
     text = raw.strip()
     m = re.search(r"\{[\s\S]*\}\s*$", text)
     if m:
@@ -74,6 +80,8 @@ def analyze_pair(
     doc_id_a: str,
     doc_id_b: str,
 ) -> CompareAnalyzeResponse:
+    """Generate structured comparison analysis for two documents."""
+
     probe = (
         "Summarize main topics, methodology, quantitative claims, assumptions, "
         "limitations, and conclusions."
@@ -112,6 +120,8 @@ def compare_answer(
     doc_id_b: str,
     query: str,
 ) -> CompareQueryResponse:
+    """Generate free-form answer to a cross-document user query."""
+
     a_ctx, b_ctx = _retrieve_both(doc_id_a, doc_id_b, query, k=4)
     system = (
         "You answer using two labeled document excerpt sets A and B. "

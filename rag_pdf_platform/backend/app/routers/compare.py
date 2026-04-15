@@ -1,3 +1,5 @@
+"""Cross-document comparison API routes."""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -15,6 +17,8 @@ router = APIRouter()
 
 
 def _require_key(api_key: str) -> str:
+    """Ensure caller sent a non-empty Groq API key."""
+
     key = (api_key or "").strip()
     if not key:
         raise HTTPException(status_code=400, detail="Groq API key is required. Add it in Settings.")
@@ -22,6 +26,8 @@ def _require_key(api_key: str) -> str:
 
 
 def _require_ready_pair(db: Session, doc_id_a: str, doc_id_b: str) -> tuple[Document, Document]:
+    """Fetch and validate both documents exist and are ready for retrieval."""
+
     a = db.get(Document, doc_id_a)
     b = db.get(Document, doc_id_b)
     if not a or not b:
@@ -33,6 +39,8 @@ def _require_ready_pair(db: Session, doc_id_a: str, doc_id_b: str) -> tuple[Docu
 
 @router.post("/analyze", response_model=CompareAnalyzeResponse)
 def analyze(req: CompareAnalyzeRequest, db: Session = Depends(get_db)):
+    """Return structured comparison summary for two selected documents."""
+
     api_key = _require_key(req.api_key)
     a, b = _require_ready_pair(db, req.doc_id_a, req.doc_id_b)
     try:
@@ -49,6 +57,8 @@ def analyze(req: CompareAnalyzeRequest, db: Session = Depends(get_db)):
 
 @router.post("/query", response_model=CompareQueryResponse)
 def compare_query(req: CompareQueryRequest, db: Session = Depends(get_db)):
+    """Answer a user question by contrasting both selected documents."""
+
     api_key = _require_key(req.api_key)
     a, b = _require_ready_pair(db, req.doc_id_a, req.doc_id_b)
     if not req.query.strip():

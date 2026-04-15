@@ -1,8 +1,10 @@
+// Home page with primary upload CTA and post-upload readiness polling.
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import Uploader from "../components/Uploader";
 
 export default function Home() {
+  // Redirects users to chat once backend indexing finishes.
   const navigate = useNavigate();
 
   return (

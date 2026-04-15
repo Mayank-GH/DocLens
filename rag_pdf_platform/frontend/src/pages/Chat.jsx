@@ -1,3 +1,4 @@
+// Chat page for asking grounded questions about a single document.
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Send, Bot, User, FileText, ArrowLeft, Loader, Sparkles } from "lucide-react";
@@ -43,6 +44,7 @@ export default function Chat() {
   }, [messages]);
 
   const sendMessage = async (text) => {
+    // Sends query + history to backend and appends assistant response.
     const query = text || input.trim();
     if (!query || loading) return;
 
